@@ -1,0 +1,55 @@
+blueprint:
+    name: Nordpool price cheap expensive
+    description: This blueprints uses the nordpool integration and lets you choose howe many hours you wil define as expesive, and make automations based on that information.
+    domain: automation
+    input: 
+        grid_area:
+            name: Grid area sensor
+            description: This is your grid area sensor
+            selector:
+                entity:
+                    domain: sensor
+                    integration: nordpool
+        expensive_hours:
+          name: Expensive hours
+          description: numbers of Expensive hours
+          default: 12
+          selector:
+            number:
+              min: 0.0
+              max: 24
+              mode: slider
+              step: 1.0
+        expensive:
+          name: Expensive
+          description: Action to run on expensive
+          default: []
+          selector:
+            action: {}
+        cheap:
+          name: Cheap
+          description: Action to run on cheap
+          default: []
+          selector:
+            action: {}
+variables:
+  grid_area_var: !input 'grid_area'
+  expensive_hours_var: !input 'expensive_hours'
+
+trigger:
+  - platform: state
+    entity_id: !input 'grid_area'
+
+action:
+    - choose:
+      - conditions:
+          - condition: template
+            value_template: >-
+                {{ (state_attr(grid_area_var,'today')|sort)[24 - expensive_hours_var |int] > states(grid_area_var)|float }}
+        sequence: !input 'cheap'
+      - conditions:
+          - condition: template
+            value_template: >-
+                {{ (state_attr(grid_area_var,'today')|sort)[24 - expensive_hours_var |int] < states(grid_area_var)|float }}
+        sequence: !input 'expensive'
+      default: []
