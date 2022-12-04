@@ -1,0 +1,351 @@
+blueprint:
+  name: ZHA - Namron 1, 2 og 4 kanal bryter
+  description: |
+    Controll lights and other with Namron zigbee remote
+
+  domain: automation
+  input:
+    remote:
+      name: Remote
+      description: Namron controller
+      selector:
+        device:
+          integration: zha
+          manufacturer: NAMRON AS
+
+          
+    channel_one_on_short:
+      name: Channel one - on button - short press
+      description: Action to run on short press on one on button 
+      default: []
+      selector:
+        action:
+    channel_one_on_long:
+      name: Channel one - on button - long press
+      description: Action to run on long press on one on button 
+      default: []
+      selector:
+        action:    
+    channel_one_on_stop:
+      name: Channel one - on button - long press release
+      description: Action to run on long press release on one on button 
+      default: []
+      selector:
+        action:           
+    channel_one_off_short:
+      name: Channel one - off button - short press
+      description: Action to run on short press on One off button 
+      default: []
+      selector:
+        action:
+    channel_one_off_long:
+      name: Channel one - off button - long press
+      description: Action to run on long press on One off button 
+      default: []
+      selector:
+        action:
+    channel_one_off_stop:
+      name: Channel one - off button - long press release
+      description: Action to run on long press release on One off button 
+      default: []
+      selector:
+        action:
+        
+    channel_two_on_short:
+      name: Channel two - on button - short press
+      description: Action to run on short press on Two on button 
+      default: []
+      selector:
+        action:
+    channel_two_on_long:
+      name: Channel two - on button - long press
+      description: Action to run on long press on Two ont button 
+      default: []
+      selector:
+        action:    
+    channel_two_on_stop:
+      name: Channel two - on button - long press release
+      description: Action to run on long press release on Two on button 
+      default: []
+      selector:
+        action:           
+    channel_two_off_short:
+      name: Channel two - off button - short press
+      description: Action to run on short press on Two off button 
+      default: []
+      selector:
+        action:
+    channel_two_off_long:
+      name: Channel two - off button - long press
+      description: Action to run on long press on Two off button 
+      default: []
+      selector:
+        action:
+    channel_two_off_stop:
+      name: Channel two - off button - long press release
+      description: Action to run on long press release on Two off button 
+      default: []
+      selector:
+        action:  
+        
+    channel_three_on_short:
+      name: Channel three - on button - short press
+      description: Action to run on short press on Three on button 
+      default: []
+      selector:
+        action:
+    channel_three_on_long:
+      name: Channel three - on button - long press
+      description: Action to run on long press on Three on button 
+      default: []
+      selector:
+        action:    
+    channel_three_on_stop:
+      name: Channel three - on button - long press release
+      description: Action to run on long press release on Three on button 
+      default: []
+      selector:
+        action:           
+    channel_three_off_short:
+      name: Channel three - off button - short press
+      description: Action to run on short press on Three off button 
+      default: []
+      selector:
+        action:
+    channel_three_off_long:
+      name: Channel three - off button - long press
+      description: Action to run on long press on Three off button 
+      default: []
+      selector:
+        action:
+    channel_three_off_stop:
+      name: Channel three - off button - long press release
+      description: Action to run on long press release on Three off button 
+      default: []
+      selector:
+        action:  
+
+    channel_four_on_short:
+      name: Channel four - on button - short press
+      description: Action to run on short press on Four on button 
+      default: []
+      selector:
+        action:
+    channel_four_on_long:
+      name: Channel four - on button - long press
+      description: Action to run on long press on Four on button 
+      default: []
+      selector:
+        action:    
+    channel_four_on_stop:
+      name: Channel four - on button - long press release
+      description: Action to run on long press release on Four on button 
+      default: []
+      selector:
+        action:           
+    channel_four_off_short:
+      name: Channel four - off button - short press
+      description: Action to run on short press on Four off button 
+      default: []
+      selector:
+        action:
+    channel_four_off_long:
+      name: Channel four - off button - long press
+      description: Action to run on long press on Four off button 
+      default: []
+      selector:
+        action:
+    channel_four_off_stop:
+      name: Channel four - off button - long press release
+      description: Action to run on long press release on Four off button 
+      default: []
+      selector:
+        action:          
+        
+mode: restart
+max_exceeded: silent
+
+
+trigger:
+  - platform: event
+    event_type: zha_event
+    event_data:
+      device_id: !input remote
+
+action:
+  - variables:
+      command: "{{ trigger.event.data.command }}"
+      cluster_id: "{{ trigger.event.data.cluster_id }}"
+      endpoint_id: "{{ trigger.event.data.endpoint_id }}"
+      args: "{{ trigger.event.data.args }}"
+  - choose:
+
+      - conditions:
+          - "{{ command == 'on' }}"
+          - "{{ cluster_id == 6 }}"
+          - "{{ endpoint_id == 1 }}"
+          - "{{ args == [] }}"
+        sequence: !input channel_one_on_short
+
+      - conditions:
+          - "{{ command == 'move_with_on_off' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 1 }}"
+          - "{{ args == [0, 50] }}"
+        sequence: !input channel_one_on_long
+        
+      - conditions:
+          - "{{ command == 'stop' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 1 }}"
+          - "{{ args == [] }}"
+        sequence: !input channel_one_on_stop
+
+      - conditions:
+          - "{{ command == 'off' }}"
+          - "{{ cluster_id == 6 }}"
+          - "{{ endpoint_id == 1 }}"
+          - "{{ args == [] }}"
+        sequence: !input channel_one_off_short
+
+      - conditions:
+          - "{{ command == 'move_with_on_off' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 1 }}"
+          - "{{ args == [1, 50] }}"
+        sequence: !input channel_one_off_long
+        
+      - conditions:
+          - "{{ command == 'stop' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 1 }}"
+          - "{{ args == [] }}"
+        sequence: !input channel_one_off_stop
+#-------------------------------------------------------      
+      - conditions:
+          - "{{ command == 'on' }}"
+          - "{{ cluster_id == 6 }}"
+          - "{{ endpoint_id == 2 }}"
+          - "{{ args == [] }}"
+        sequence: !input channel_two_on_short
+
+      - conditions:
+          - "{{ command == 'move_with_on_off' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 2 }}"
+          - "{{ args == [0, 50] }}"
+        sequence: !input channel_two_on_long
+        
+      - conditions:
+          - "{{ command == 'stop' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 2 }}"
+          - "{{ args == [] }}"
+        sequence: !input channel_two_on_stop
+
+      - conditions:
+          - "{{ command == 'off' }}"
+          - "{{ cluster_id == 6 }}"
+          - "{{ endpoint_id == 2 }}"
+          - "{{ args == [] }}"
+        sequence: !input channel_two_off_short
+
+      - conditions:
+          - "{{ command == 'move_with_on_off' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 2 }}"
+          - "{{ args == [1, 50] }}"
+        sequence: !input channel_two_off_long
+        
+      - conditions:
+          - "{{ command == 'stop' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 2 }}"
+          - "{{ args == [] }}"
+        sequence: !input channel_two_off_stop
+#-------------------------------------------------------        
+      - conditions:
+          - "{{ command == 'on' }}"
+          - "{{ cluster_id == 6 }}"
+          - "{{ endpoint_id == 3 }}"
+          - "{{ args == [] }}"
+        sequence: !input channel_three_on_short
+
+      - conditions:
+          - "{{ command == 'move_with_on_off' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 3 }}"
+          - "{{ args == [0, 50] }}"
+        sequence: !input channel_three_on_long
+        
+      - conditions:
+          - "{{ command == 'stop' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 3 }}"
+          - "{{ args == [] }}"
+        sequence: !input channel_three_on_stop
+
+      - conditions:
+          - "{{ command == 'off' }}"
+          - "{{ cluster_id == 6 }}"
+          - "{{ endpoint_id == 3 }}"
+          - "{{ args == [] }}"
+        sequence: !input channel_three_off_short
+
+      - conditions:
+          - "{{ command == 'move_with_on_off' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 3 }}"
+          - "{{ args == [1, 50] }}"
+        sequence: !input channel_three_off_long
+        
+      - conditions:
+          - "{{ command == 'stop' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 3 }}"
+          - "{{ args == [] }}"
+        sequence: !input channel_three_off_stop
+#-------------------------------------------------------     
+      - conditions:
+          - "{{ command == 'on' }}"
+          - "{{ cluster_id == 6 }}"
+          - "{{ endpoint_id == 4 }}"
+          - "{{ args == [] }}"
+        sequence: !input channel_four_on_short
+
+      - conditions:
+          - "{{ command == 'move_with_on_off' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 4 }}"
+          - "{{ args == [0, 50] }}"
+        sequence: !input channel_four_on_long
+        
+      - conditions:
+          - "{{ command == 'stop' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 4 }}"
+          - "{{ args == [] }}"
+        sequence: !input channel_four_on_stop
+
+      - conditions:
+          - "{{ command == 'off' }}"
+          - "{{ cluster_id == 6 }}"
+          - "{{ endpoint_id == 4 }}"
+          - "{{ args == [] }}"
+        sequence: !input channel_four_off_short
+
+      - conditions:
+          - "{{ command == 'move_with_on_off' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 4 }}"
+          - "{{ args == [1, 50] }}"
+        sequence: !input channel_four_off_long
+        
+      - conditions:
+          - "{{ command == 'stop' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 4 }}"
+          - "{{ args == [] }}"
+        sequence: !input channel_four_off_stop
+#-------------------------------------------------------        
+    
