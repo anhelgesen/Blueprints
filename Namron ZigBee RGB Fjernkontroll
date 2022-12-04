@@ -1,0 +1,486 @@
+blueprint:
+  name: ZHA - Namron Fjernkontroll
+  description: |
+    Control lights with an Namron remote
+
+  domain: automation
+  input:
+    remote:
+      name: Remote
+      description: Namron remote to use
+      selector:
+        device:
+          integration: zha
+          manufacturer: NAMRON AS
+          model: "4512706"
+    light_1:
+      name: Light(s) 1
+      description: The light(s) to control
+      selector:
+        target:
+          entity:
+            domain: light
+    light_2:
+      name: Light(s) 2
+      description: The light(s) to control
+      selector:
+        target:
+          entity:
+            domain: light
+    light_3:
+      name: Light(s) 3
+      description: The light(s) to control
+      selector:
+        target:
+          entity:
+            domain: light
+    light_4:
+      name: Light(s) 4
+      description: The light(s) to control
+      selector:
+        target:
+          entity:
+            domain: light
+            
+    scene_1:
+      name: S1 action
+      description: Action to run on short press on the S1 button 
+      default: []
+      selector:
+        action:
+    scene_2:
+      name: S2 action
+      description: Action to run on short press on the S2 button 
+      default: []
+      selector:
+        action:
+    scene_3:
+      name: S3 action
+      description: Action to run on short press on the S3 button 
+      default: []
+      selector:
+        action:
+    scene_4:
+      name: S4 action
+      description: Action to run on short press on the S4 button 
+      default: []
+      selector:
+        action:
+    scene_5:
+      name: S5 action
+      description: Action to run on short press on the S5 button 
+      default: []
+      selector:
+        action:
+    scene_6:
+      name: S6 action
+      description: Action to run on short press on the S6 button 
+      default: []
+      selector:
+        action:
+    scene_7:
+      name: S7 action
+      description: Action to run on short press on the S7 button 
+      default: []
+      selector:
+        action:
+        
+mode: parallel
+max_exceeded: silent
+
+
+trigger:
+  - platform: event
+    event_type: zha_event
+    event_data:
+      device_id: !input remote
+
+action:
+  - variables:
+      command: "{{ trigger.event.data.command }}"
+      cluster_id: "{{ trigger.event.data.cluster_id }}"
+      endpoint_id: "{{ trigger.event.data.endpoint_id }}"
+      args: "{{ trigger.event.data.args }}"
+      step_mode: "{{ trigger.event.data.params.step_mode }}"
+      step_size: "{{ trigger.event.data.params.step_size }}"
+      transition_time: "{{ trigger.event.data.params.transition_time }}"
+      hue: "{{ trigger.event.data.params.hue }}"
+      color_temp_mireds: "{{ trigger.event.data.params.color_temp_mireds }}"
+      scene_id: "{{ trigger.event.data.params.scene_id }}"
+      
+#--------------scenes------------------------------------------      
+  - choose:
+      - conditions:
+          - "{{ command == 'recall' }}"
+          - "{{ cluster_id == 5 }}"
+          - "{{ scene_id == 1 }}"
+        sequence: !input scene_1
+#          - "{{ '!input scene_' ~ scene_id }}"
+      - conditions:
+          - "{{ command == 'recall' }}"
+          - "{{ cluster_id == 5 }}"
+          - "{{ scene_id == 2 }}"
+        sequence: !input scene_2
+      - conditions:
+          - "{{ command == 'recall' }}"
+          - "{{ cluster_id == 5 }}"
+          - "{{ scene_id == 3 }}"
+        sequence: !input scene_3
+      - conditions:
+          - "{{ command == 'recall' }}"
+          - "{{ cluster_id == 5 }}"
+          - "{{ scene_id == 4 }}"
+        sequence: !input scene_4            
+      - conditions:
+          - "{{ command == 'recall' }}"
+          - "{{ cluster_id == 5 }}"
+          - "{{ scene_id == 5 }}"
+        sequence: !input scene_5
+      - conditions:
+          - "{{ command == 'recall' }}"
+          - "{{ cluster_id == 5 }}"
+          - "{{ scene_id == 6 }}"
+        sequence: !input scene_6
+      - conditions:
+          - "{{ command == 'recall' }}"
+          - "{{ cluster_id == 5 }}"
+          - "{{ scene_id == 7 }}"
+        sequence: !input scene_7
+
+#------------------1---------------------
+
+      - conditions:
+          - "{{ command == 'on' }}"
+          - "{{ cluster_id == 6 }}"
+          - "{{ endpoint_id == 1 }}"
+          - "{{ args == [] }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_1
+
+      - conditions:
+          - "{{ command == 'off' }}"
+          - "{{ cluster_id == 6 }}"
+          - "{{ endpoint_id == 1 }}"
+          - "{{ args == [] }}"
+        sequence:
+          - service: light.turn_off
+            target: !input light_1
+            
+      - conditions:
+          - "{{ command == 'step_with_on_off' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 1 }}"
+          - "{{ step_mode == 'StepMode.Up' }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_1
+            data:
+              brightness_step: 32
+
+      - conditions:
+          - "{{ command == 'step_with_on_off' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 1 }}"
+          - "{{ step_mode == 'StepMode.Down' }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_1
+            data:
+              brightness_step: -32
+              
+      - conditions:
+          - "{{ command == 'move_to_hue' }}"
+          - "{{ cluster_id == 768 }}"
+          - "{{ endpoint_id == 1 }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_1
+            data:
+              hs_color: ["{{ 360/250*hue }}",100]
+                
+      - conditions:
+          - "{{ command == 'move_to_color_temp' }}"
+          - "{{ cluster_id == 768 }}"
+          - "{{ endpoint_id == 1 }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_1
+            data:
+              color_temp: "{{ color_temp_mireds }}"
+              
+      - conditions:
+          - "{{ command == 'step_color_temp' }}"
+          - "{{ cluster_id == 768 }}"
+          - "{{ endpoint_id == 1 }}"
+          - "{{ step_mode == 'StepMode.Down' }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_1
+            data:
+              color_temp: 153
+
+      - conditions:
+          - "{{ command == 'step_color_temp' }}"
+          - "{{ cluster_id == 768 }}"
+          - "{{ endpoint_id == 1 }}"
+          - "{{ step_mode == 'StepMode.Up' }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_1
+            data:
+              color_temp: 500
+
+#-----------------2---------------------------------------
+
+      - conditions:
+          - "{{ command == 'on' }}"
+          - "{{ cluster_id == 6 }}"
+          - "{{ endpoint_id == 2 }}"
+          - "{{ args == [] }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_2
+
+      - conditions:
+          - "{{ command == 'off' }}"
+          - "{{ cluster_id == 6 }}"
+          - "{{ endpoint_id == 2 }}"
+          - "{{ args == [] }}"
+        sequence:
+          - service: light.turn_off
+            target: !input light_2
+            
+      - conditions:
+          - "{{ command == 'step_with_on_off' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 2 }}"
+          - "{{ step_mode == 'StepMode.Up' }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_2
+            data:
+              brightness_step: 32
+              
+      - conditions:
+          - "{{ command == 'step_with_on_off' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 2 }}"
+          - "{{ step_mode == 'StepMode.Down' }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_2
+            data:
+              brightness_step: -32
+              
+      - conditions:
+          - "{{ command == 'move_to_hue' }}"
+          - "{{ cluster_id == 768 }}"
+          - "{{ endpoint_id == 2 }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_2
+            data:
+              hs_color: ["{{ 360/250*hue }}",100]
+              
+      - conditions:
+          - "{{ command == 'move_to_color_temp' }}"
+          - "{{ cluster_id == 768 }}"
+          - "{{ endpoint_id == 2 }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_2
+            data:
+              color_temp: "{{ color_temp_mireds }}"
+              
+      - conditions:
+          - "{{ command == 'step_color_temp' }}"
+          - "{{ cluster_id == 768 }}"
+          - "{{ endpoint_id == 2 }}"
+          - "{{ step_mode == 'StepMode.Down' }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_2
+            data:
+              color_temp: 153
+
+      - conditions:
+          - "{{ command == 'step_color_temp' }}"
+          - "{{ cluster_id == 768 }}"
+          - "{{ endpoint_id == 2 }}"
+          - "{{ step_mode == 'StepMode.Up' }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_2
+            data:
+              color_temp: 500
+
+#------------------3--------------------------------------
+
+      - conditions:
+          - "{{ command == 'on' }}"
+          - "{{ cluster_id == 6 }}"
+          - "{{ endpoint_id == 3 }}"
+          - "{{ args == [] }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_3
+
+      - conditions:
+          - "{{ command == 'off' }}"
+          - "{{ cluster_id == 6 }}"
+          - "{{ endpoint_id == 3 }}"
+          - "{{ args == [] }}"
+        sequence:
+          - service: light.turn_off
+            target: !input light_3
+            
+      - conditions:
+          - "{{ command == 'step_with_on_off' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 3 }}"
+          - "{{ step_mode == 'StepMode.Up' }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_3
+            data:
+              brightness_step: 32
+              
+      - conditions:
+          - "{{ command == 'step_with_on_off' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 3 }}"
+          - "{{ step_mode == 'StepMode.Down' }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_3
+            data:
+              brightness_step: -32
+              
+      - conditions:
+          - "{{ command == 'move_to_hue' }}"
+          - "{{ cluster_id == 768 }}"
+          - "{{ endpoint_id == 3 }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_3
+            data:
+              hs_color: ["{{ 360/250*hue }}",100]
+              
+      - conditions:
+          - "{{ command == 'move_to_color_temp' }}"
+          - "{{ cluster_id == 768 }}"
+          - "{{ endpoint_id == 3 }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_3
+            data:
+              color_temp: "{{ color_temp_mireds }}"
+              
+      - conditions:
+          - "{{ command == 'step_color_temp' }}"
+          - "{{ cluster_id == 768 }}"
+          - "{{ endpoint_id == 3 }}"
+          - "{{ step_mode == 'StepMode.Down' }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_3
+            data:
+              color_temp: 153
+
+      - conditions:
+          - "{{ command == 'step_color_temp' }}"
+          - "{{ cluster_id == 768 }}"
+          - "{{ endpoint_id == 3 }}"
+          - "{{ step_mode == 'StepMode.Up' }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_3
+            data:
+              color_temp: 500
+
+#---------------------4-----------------------------------
+
+      - conditions:
+          - "{{ command == 'on' }}"
+          - "{{ cluster_id == 6 }}"
+          - "{{ endpoint_id == 4 }}"
+          - "{{ args == [] }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_4
+
+      - conditions:
+          - "{{ command == 'off' }}"
+          - "{{ cluster_id == 6 }}"
+          - "{{ endpoint_id == 4 }}"
+          - "{{ args == [] }}"
+        sequence:
+          - service: light.turn_off
+            target: !input light_4
+            
+      - conditions:
+          - "{{ command == 'step_with_on_off' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 4 }}"
+          - "{{ step_mode == 'StepMode.Up' }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_4
+            data:
+              brightness_step: 32
+              
+      - conditions:
+          - "{{ command == 'step_with_on_off' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 4 }}"
+          - "{{ step_mode == 'StepMode.Down' }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_4
+            data:
+              brightness_step: -32
+              
+      - conditions:
+          - "{{ command == 'move_to_hue' }}"
+          - "{{ cluster_id == 768 }}"
+          - "{{ endpoint_id == 4 }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_4
+            data:
+              hs_color: ["{{ 360/250*hue }}",100]
+              
+      - conditions:
+          - "{{ command == 'move_to_color_temp' }}"
+          - "{{ cluster_id == 768 }}"
+          - "{{ endpoint_id == 4 }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_4
+            data:
+              color_temp: "{{ color_temp_mireds }}"
+            
+      - conditions:
+          - "{{ command == 'step_color_temp' }}"
+          - "{{ cluster_id == 768 }}"
+          - "{{ endpoint_id == 4 }}"
+          - "{{ step_mode == 'StepMode.Down' }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_4
+            data:
+              color_temp: 153
+
+      - conditions:
+          - "{{ command == 'step_color_temp' }}"
+          - "{{ cluster_id == 768 }}"
+          - "{{ endpoint_id == 4 }}"
+          - "{{ step_mode == 'StepMode.Up' }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_4
+            data:
+              color_temp: 500
+#-------------------------------------------------------        
+    
