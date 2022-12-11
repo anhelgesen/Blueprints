@@ -178,6 +178,7 @@ action:
       cluster_id: "{{ trigger.event.data.cluster_id }}"
       endpoint_id: "{{ trigger.event.data.endpoint_id }}"
       args: "{{ trigger.event.data.args }}"
+      move_mode: "{{ trigger.event.data.params.move_mode }}"
   - choose:
 
       - conditions:
@@ -191,7 +192,7 @@ action:
           - "{{ command == 'move_with_on_off' }}"
           - "{{ cluster_id == 8 }}"
           - "{{ endpoint_id == 1 }}"
-          - "{{ args == [0, 50] }}"
+          - "{{ move_mode == 'MoveMode.Up' }}"
         sequence: !input channel_one_on_long
         
       - conditions:
@@ -212,7 +213,7 @@ action:
           - "{{ command == 'move_with_on_off' }}"
           - "{{ cluster_id == 8 }}"
           - "{{ endpoint_id == 1 }}"
-          - "{{ args == [1, 50] }}"
+          - "{{ move_mode == 'MoveMode.Down' }}"
         sequence: !input channel_one_off_long
         
       - conditions:
@@ -233,7 +234,7 @@ action:
           - "{{ command == 'move_with_on_off' }}"
           - "{{ cluster_id == 8 }}"
           - "{{ endpoint_id == 2 }}"
-          - "{{ args == [0, 50] }}"
+          - "{{ move_mode == 'MoveMode.Up' }}"
         sequence: !input channel_two_on_long
         
       - conditions:
@@ -254,7 +255,7 @@ action:
           - "{{ command == 'move_with_on_off' }}"
           - "{{ cluster_id == 8 }}"
           - "{{ endpoint_id == 2 }}"
-          - "{{ args == [1, 50] }}"
+          - "{{ move_mode == 'MoveMode.Down' }}"
         sequence: !input channel_two_off_long
         
       - conditions:
@@ -275,7 +276,7 @@ action:
           - "{{ command == 'move_with_on_off' }}"
           - "{{ cluster_id == 8 }}"
           - "{{ endpoint_id == 3 }}"
-          - "{{ args == [0, 50] }}"
+          - "{{ move_mode == 'MoveMode.Up' }}"
         sequence: !input channel_three_on_long
         
       - conditions:
@@ -296,7 +297,7 @@ action:
           - "{{ command == 'move_with_on_off' }}"
           - "{{ cluster_id == 8 }}"
           - "{{ endpoint_id == 3 }}"
-          - "{{ args == [1, 50] }}"
+          - "{{ move_mode == 'MoveMode.Down' }}"
         sequence: !input channel_three_off_long
         
       - conditions:
@@ -317,7 +318,7 @@ action:
           - "{{ command == 'move_with_on_off' }}"
           - "{{ cluster_id == 8 }}"
           - "{{ endpoint_id == 4 }}"
-          - "{{ args == [0, 50] }}"
+          - "{{ move_mode == 'MoveMode.Up' }}"
         sequence: !input channel_four_on_long
         
       - conditions:
@@ -338,7 +339,7 @@ action:
           - "{{ command == 'move_with_on_off' }}"
           - "{{ cluster_id == 8 }}"
           - "{{ endpoint_id == 4 }}"
-          - "{{ args == [1, 50] }}"
+          - "{{ move_mode == 'MoveMode.Down' }}"
         sequence: !input channel_four_off_long
         
       - conditions:
