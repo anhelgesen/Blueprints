@@ -50,6 +50,6 @@ action:
       - conditions:
           - condition: template
             value_template: >-
-                {{ (state_attr(grid_area_var,'today')|sort)[24 - expensive_hours_var |int] < states(grid_area_var)|float }}
+                {{ (state_attr(grid_area_var,'today')|sort)[24 - expensive_hours_var |int] <= states(grid_area_var)|float }}
         sequence: !input 'expensive'
       default: []
